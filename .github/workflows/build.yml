@@ -1,0 +1,37 @@
+name: Build and Package Installer
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Release
+        run: |
+          msbuild GeradorChaveDeAcesso\GeradorChaveDeAcesso.sln `
+            /p:Configuration=Release `
+            /p:Platform="Any CPU"
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        run: iscc "Inno\gerador(PTR).iss"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gerador-de-Chave-de-Acesso-4.0
+          path: Instalador\*.exe

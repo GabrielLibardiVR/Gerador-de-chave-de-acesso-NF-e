@@ -400,8 +400,13 @@ namespace GeradorChaveDeAcesso
         private void txtMes_Leave(object sender, EventArgs e)
         {
             string text = txtMes.Text.Trim();
-            if (text.Length == 1 && char.IsDigit(text[0]))
-                txtMes.Text = "0" + text;
+            if (int.TryParse(text, out int month) && month >= 1 && month <= 12)
+                txtMes.Text = text.PadLeft(2, '0');
+            else if (!string.IsNullOrEmpty(text))
+            {
+                MessageBox.Show("Mês inválido. Informe um valor entre 01 e 12.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtMes.Focus();
+            }
         }
 
         private void BtnInfo_Click(object sender, EventArgs e)
