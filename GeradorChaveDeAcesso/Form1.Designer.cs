@@ -31,15 +31,13 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GeradorChaveDeAcesso));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.cmbEstado = new System.Windows.Forms.ComboBox();
-            this.dtpAno = new System.Windows.Forms.DateTimePicker();
-            this.dtpMes = new System.Windows.Forms.DateTimePicker();
-            this.mtbCNPJ = new System.Windows.Forms.MaskedTextBox();
+            this.dtpData = new System.Windows.Forms.DateTimePicker();
+            this.txtCNPJ = new System.Windows.Forms.TextBox();
             this.cmbModelo = new System.Windows.Forms.ComboBox();
             this.btnGerarChave = new System.Windows.Forms.Button();
             this.txtChaveAcesso = new System.Windows.Forms.TextBox();
@@ -68,16 +66,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(26, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Ano";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(213, 9);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(27, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Mês";
+            this.label2.Text = "Data";
             // 
             // label4
             // 
@@ -117,43 +106,34 @@
             // 
             // cmbEstado
             // 
+            this.cmbEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbEstado.FormattingEnabled = true;
             this.cmbEstado.Location = new System.Drawing.Point(49, 6);
             this.cmbEstado.Name = "cmbEstado";
             this.cmbEstado.Size = new System.Drawing.Size(60, 21);
             this.cmbEstado.TabIndex = 0;
             // 
-            // dtpAno
+            // dtpData
             // 
-            this.dtpAno.CustomFormat = "yy";
-            this.dtpAno.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpAno.Location = new System.Drawing.Point(147, 6);
-            this.dtpAno.MaxDate = new System.DateTime(2100, 12, 31, 0, 0, 0, 0);
-            this.dtpAno.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
-            this.dtpAno.Name = "dtpAno";
-            this.dtpAno.Size = new System.Drawing.Size(60, 20);
-            this.dtpAno.TabIndex = 1;
-            this.dtpAno.Value = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
+            this.dtpData.CustomFormat = "MM/yyyy";
+            this.dtpData.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpData.Location = new System.Drawing.Point(147, 6);
+            this.dtpData.Name = "dtpData";
+            this.dtpData.ShowUpDown = true;
+            this.dtpData.Size = new System.Drawing.Size(130, 20);
+            this.dtpData.TabIndex = 1;
             // 
-            // dtpMes
+            // txtCNPJ
             // 
-            this.dtpMes.CustomFormat = "MM";
-            this.dtpMes.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpMes.Location = new System.Drawing.Point(246, 7);
-            this.dtpMes.Name = "dtpMes";
-            this.dtpMes.Size = new System.Drawing.Size(52, 20);
-            this.dtpMes.TabIndex = 2;
-            // 
-            // mtbCNPJ
-            // 
-            this.mtbCNPJ.Location = new System.Drawing.Point(49, 36);
-            this.mtbCNPJ.Mask = "00.000.000/0000-00";
-            this.mtbCNPJ.Name = "mtbCNPJ";
-            this.mtbCNPJ.Size = new System.Drawing.Size(112, 20);
-            this.mtbCNPJ.TabIndex = 3;
+            this.txtCNPJ.Location = new System.Drawing.Point(49, 36);
+            this.txtCNPJ.MaxLength = 14;
+            this.txtCNPJ.Name = "txtCNPJ";
+            this.txtCNPJ.Size = new System.Drawing.Size(112, 20);
+            this.txtCNPJ.TabIndex = 3;
             // 
             // cmbModelo
             // 
+            this.cmbModelo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbModelo.FormattingEnabled = true;
             this.cmbModelo.Location = new System.Drawing.Point(246, 33);
             this.cmbModelo.Name = "cmbModelo";
@@ -246,15 +226,13 @@
             this.Controls.Add(this.txtChaveAcesso);
             this.Controls.Add(this.btnGerarChave);
             this.Controls.Add(this.cmbModelo);
-            this.Controls.Add(this.mtbCNPJ);
-            this.Controls.Add(this.dtpMes);
-            this.Controls.Add(this.dtpAno);
+            this.Controls.Add(this.txtCNPJ);
+            this.Controls.Add(this.dtpData);
             this.Controls.Add(this.cmbEstado);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -271,15 +249,13 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox cmbEstado;
-        private System.Windows.Forms.DateTimePicker dtpAno;
-        private System.Windows.Forms.DateTimePicker dtpMes;
-        private System.Windows.Forms.MaskedTextBox mtbCNPJ;
+        private System.Windows.Forms.DateTimePicker dtpData;
+        private System.Windows.Forms.TextBox txtCNPJ;
         private System.Windows.Forms.ComboBox cmbModelo;
         private System.Windows.Forms.Button btnGerarChave;
         private System.Windows.Forms.TextBox txtChaveAcesso;
