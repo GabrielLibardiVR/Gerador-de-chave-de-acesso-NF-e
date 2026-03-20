@@ -76,7 +76,7 @@ namespace GeradorChaveDeAcesso
 
         private string validaEstado(string Estado)
         {
-            switch (Estado)
+            switch (Estado.ToUpper())
             {
                 case "RO":
                     return "11";
@@ -260,11 +260,15 @@ namespace GeradorChaveDeAcesso
             return cnpj.EndsWith(digito);
         }
 
-        public bool isVazio(string est, string mod, string cnp, string ser, string num)
+        public bool isVazio(string est, string mod, string ano, string mes, string cnp, string ser, string num)
         {
             if (est.Equals(""))
                 return true;
             else if (mod.Equals(""))
+                return true;
+            else if (ano.Equals(""))
+                return true;
+            else if (mes.Equals(""))
                 return true;
             else if (cnp.Equals(""))
                 return true;
@@ -306,8 +310,15 @@ namespace GeradorChaveDeAcesso
             //Pegando os valores da tela
             est = validaEstado(cmbEstado.Text);
             mod = cmbModelo.Text;
-            ano = dtpData.Value.ToString("yy");
-            mes = dtpData.Value.ToString("MM");
+
+            string anoRaw = txtAno.Text.Trim();
+            string mesRaw = txtMes.Text.Trim();
+            if (anoRaw.Length == 2 && anoRaw.All(char.IsDigit))
+                anoRaw = "20" + anoRaw;
+            mesRaw = mesRaw.PadLeft(2, '0');
+            ano = anoRaw.Length == 4 ? anoRaw.Substring(2) : anoRaw;
+            mes = mesRaw;
+
             cnp = txtCNPJ.Text.Trim().ToUpper();
             ser = txtserie.Text;
             num = txtNum.Text;
@@ -315,7 +326,7 @@ namespace GeradorChaveDeAcesso
             ranTxt = ranInt.ToString().PadLeft(9, '0');
 
             //Efetuando validações
-            vazio = isVazio(est, mod, cnp, ser, num);
+            vazio = isVazio(est, mod, anoRaw, mesRaw, cnp, ser, num);
             quantRegS = VerificTxt(ser, 1);
             quantRegN = VerificTxt(num, 2);
             valid = validaComboBox(est, mod);
@@ -359,19 +370,47 @@ namespace GeradorChaveDeAcesso
         {
             cmbEstado.SelectedIndex = 0;
             cmbModelo.SelectedIndex = 0;
-            dtpData.Value = DateTime.Now;
+            txtAno.Text = "";
+            txtMes.Text = "";
             txtCNPJ.Text = "";
             txtserie.Text = "";
             txtNum.Text = "";
             txtChaveAcesso.Text = "";
         }
 
+        private void txtAno_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                e.Handled = true;
+        }
+
+        private void txtAno_Leave(object sender, EventArgs e)
+        {
+            string text = txtAno.Text.Trim();
+            if (text.Length == 2 && text.All(char.IsDigit))
+                txtAno.Text = "20" + text;
+        }
+
+        private void txtMes_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                e.Handled = true;
+        }
+
+        private void txtMes_Leave(object sender, EventArgs e)
+        {
+            string text = txtMes.Text.Trim();
+            if (text.Length == 1 && char.IsDigit(text[0]))
+                txtMes.Text = "0" + text;
+        }
+
         private void BtnInfo_Click(object sender, EventArgs e)
         {
             string mensagem;
 
-            mensagem = "Estado: Selecione o estado do emitente\n\n" +
-                        "Data: Selecione o mês e ano de emissão (MM/aaaa)\n\n" +
+            mensagem = "Estado: Selecione ou digite o estado do emitente\n\n" +
+                        "Ano: Informe o ano com 2 ou 4 dígitos (ex: 26 ou 2026)\n\n" +
+                        "Mês: Informe o mês com 1 ou 2 dígitos (ex: 1 ou 01)\n\n" +
                         "CNPJ: Informe o CNPJ do emitente (14 caracteres, alfanumérico)\n\n" +
                         "Modelo: Selecione o modelo do documento fiscal\n\n" +
                         "Série: Informe a série (até 3 dígitos; zeros à esquerda são inseridos automaticamente)\n\n" +
@@ -388,9 +427,9 @@ namespace GeradorChaveDeAcesso
 
 
             mensagem = "Suporte a CNPJ alfanumérico (A=10, B=11, ..., Z=35).\n" +
-                       "Data unificada em um único seletor (MM/aaaa).\n" +
+                       "Campos separados para Ano e Mês com autocompletar (ex: '26' → '2026', '1' → '01').\n" +
                        "Preenchimento automático de zeros à esquerda nos campos Série e Número.\n" +
-                       "Estado e Modelo alterados para lista de seleção (DropDownList).\n" +
+                       "Estado com autocompletar ao digitar (ex: 'sc' → 'SC').\n" +
                        "Modernização do código (ArrayList → List<string>).";
 
             MessageBox.Show("As atualizações disponibilizadas na versão " + ver + "\n\n" + mensagem,"Informações",MessageBoxButtons.OK,MessageBoxIcon.Information);
