@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,9 +17,9 @@ namespace GeradorChaveDeAcesso
             InitializeComponent();
         }
 
-        private void PreencheEstado(ArrayList Estado)
+        private void PreencheEstado(List<string> Estado)
         {
-            Estado.Add(" "); //00
+            Estado.Add("Selecione..."); //00
             Estado.Add("AC");//12
             Estado.Add("AL");//27
             Estado.Add("AM");//13
@@ -54,10 +52,10 @@ namespace GeradorChaveDeAcesso
 
         }
 
-        private void PreencheModelo(ArrayList Modelo)
+        private void PreencheModelo(List<string> Modelo)
         {
             //Null
-            Modelo.Add(" ");
+            Modelo.Add("Selecione...");
      
             //Modelos
             Modelo.Add("55");
@@ -69,8 +67,8 @@ namespace GeradorChaveDeAcesso
 
         private void GeradorChaveDeAcesso_Load(object sender, EventArgs e)
         {
-            ArrayList Estados = new ArrayList();
-            ArrayList Modelos = new ArrayList();
+            List<string> Estados = new List<string>();
+            List<string> Modelos = new List<string>();
 
             PreencheEstado(Estados);
             PreencheModelo(Modelos);
@@ -78,7 +76,7 @@ namespace GeradorChaveDeAcesso
 
         private string validaEstado(string Estado)
         {
-            switch (Estado)
+            switch (Estado.ToUpper())
             {
                 case "RO":
                     return "11";
@@ -167,6 +165,16 @@ namespace GeradorChaveDeAcesso
             }
         }
 
+        private static int CharToValue(char c)
+        {
+            if (char.IsDigit(c))
+                return c - '0';
+            char upper = char.ToUpper(c);
+            if (upper >= 'A' && upper <= 'Z')
+                return upper - 'A' + 10;
+            return 0;
+        }
+
         public static string digito(string chave)
         {
             int soma = 0;
@@ -176,7 +184,7 @@ namespace GeradorChaveDeAcesso
 
             for (int i = 0; i < chave.Length; i++)
             {
-                soma += peso[i % 8] * (int.Parse(chave.Substring(i, 1)));
+                soma += peso[i % 8] * CharToValue(chave[i]);
             }
 
             resto = soma % 11;
@@ -194,7 +202,7 @@ namespace GeradorChaveDeAcesso
 
         public bool validaComboBox(string Est, string Mod)
         {
-            if ((Est.Equals("0")) || (Mod.Equals(" ")))
+            if ((Est.Equals("0")) || (Mod.Equals("Selecione...")))
             {
                 return false;
             }
@@ -212,11 +220,22 @@ namespace GeradorChaveDeAcesso
             if (cnpj.Length != 14)
                 return false;
 
+            for (int i = 0; i < 12; i++)
+            {
+                char upper = char.ToUpper(cnpj[i]);
+                if (!char.IsDigit(cnpj[i]) && (upper < 'A' || upper > 'Z'))
+                    return false;
+            }
+
+            for (int i = 12; i < 14; i++)
+                if (!char.IsDigit(cnpj[i]))
+                    return false;
+
             string tempCnpj = cnpj.Substring(0, 12);
             int soma = 0;
 
             for (int i = 0; i < 12; i++)
-                soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
+                soma += CharToValue(tempCnpj[i]) * multiplicador1[i];
 
             int resto = (soma % 11);
             if (resto < 2)
@@ -228,7 +247,7 @@ namespace GeradorChaveDeAcesso
             tempCnpj = tempCnpj + digito;
             soma = 0;
             for (int i = 0; i < 13; i++)
-                soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+                soma += CharToValue(tempCnpj[i]) * multiplicador2[i];
 
             resto = (soma % 11);
             if (resto < 2)
@@ -263,27 +282,27 @@ namespace GeradorChaveDeAcesso
 
         public bool VerificTxt(string uni, int validador)
         {
-            int n;
-            bool isNumeric = int.TryParse(uni, out n);
+            if (string.IsNullOrEmpty(uni))
+                return false;
 
-            if ((uni.Length < 3) && (validador == 1) || (!isNumeric))
+            foreach (char c in uni)
             {
-                return false;
+                if (!char.IsDigit(c))
+                    return false;
             }
-            else if ((uni.Length < 9) && (validador == 2) || (!isNumeric))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+
+            if (validador == 1)
+                return uni.Length <= 3;
+
+            if (validador == 2)
+                return uni.Length <= 9;
+
+            return true;
         }
 
         private void BtnGerarChave_Click(object sender, EventArgs e)
         {
             string est, ano, mes, cnp, mod, ser, num, ranTxt, chave, aux;
-            Regex regexObj = new Regex(@"[^\d]");
             Random rdn = new Random();
             int ranInt;
             bool cnpj, vazio, valid, quantRegS, quantRegN;
@@ -291,16 +310,23 @@ namespace GeradorChaveDeAcesso
             //Pegando os valores da tela
             est = validaEstado(cmbEstado.Text);
             mod = cmbModelo.Text;
-            ano = dtpAno.Text;
-            mes = dtpMes.Text;
-            cnp = regexObj.Replace(mtbCNPJ.Text, "");
+
+            string anoRaw = txtAno.Text.Trim();
+            string mesRaw = txtMes.Text.Trim();
+            if (anoRaw.Length == 2 && anoRaw.All(char.IsDigit))
+                anoRaw = "20" + anoRaw;
+            mesRaw = mesRaw.PadLeft(2, '0');
+            ano = anoRaw.Length == 4 ? anoRaw.Substring(2) : anoRaw;
+            mes = mesRaw;
+
+            cnp = txtCNPJ.Text.Trim().ToUpper();
             ser = txtserie.Text;
             num = txtNum.Text;
-            ranInt = rdn.Next(000000000, 999999999);
-            ranTxt = ranInt.ToString();
+            ranInt = rdn.Next(0, 1000000000);
+            ranTxt = ranInt.ToString().PadLeft(9, '0');
 
             //Efetuando validações
-            vazio = isVazio(est, mod, ano, mes, cnp, ser, num);
+            vazio = isVazio(est, mod, anoRaw, mesRaw, cnp, ser, num);
             quantRegS = VerificTxt(ser, 1);
             quantRegN = VerificTxt(num, 2);
             valid = validaComboBox(est, mod);
@@ -314,14 +340,14 @@ namespace GeradorChaveDeAcesso
                     {
                         if ((quantRegS) && (quantRegN))
                         {
-                            aux = est + ano + mes + cnp + mod + ser + num + ranTxt;
+                            aux = est + ano + mes + cnp + mod + ser.PadLeft(3, '0') + num.PadLeft(9, '0') + ranTxt;
                             chave = digito(aux);
 
                             txtChaveAcesso.Text = chave;
                         }
                         else
                         {
-                            MessageBox.Show("Campo Número ou Série com valor menor ao permitido ou inválido", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Campo Número ou Série com valor inválido", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     else
@@ -342,25 +368,59 @@ namespace GeradorChaveDeAcesso
 
         private void btnLimp_Click(object sender, EventArgs e)
         {
-            cmbEstado.Text = "";
-            dtpAno.Text = "";
-            dtpMes.Text = "";
-            mtbCNPJ.Text = "";
-            cmbModelo.Text = "";
+            cmbEstado.SelectedIndex = 0;
+            cmbModelo.SelectedIndex = 0;
+            txtAno.Text = "";
+            txtMes.Text = "";
+            txtCNPJ.Text = "";
             txtserie.Text = "";
             txtNum.Text = "";
             txtChaveAcesso.Text = "";
+        }
+
+        private void txtAno_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                e.Handled = true;
+        }
+
+        private void txtAno_Leave(object sender, EventArgs e)
+        {
+            string text = txtAno.Text.Trim();
+            if (text.Length == 2 && text.All(char.IsDigit))
+                txtAno.Text = "20" + text;
+        }
+
+        private void txtMes_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                e.Handled = true;
+        }
+
+        private void txtMes_Leave(object sender, EventArgs e)
+        {
+            string text = txtMes.Text.Trim();
+            if (int.TryParse(text, out int month) && month >= 1 && month <= 12)
+                txtMes.Text = text.PadLeft(2, '0');
+            else if (!string.IsNullOrEmpty(text))
+            {
+                MessageBox.Show("Mês inválido. Informe um valor entre 01 e 12.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtMes.Focus();
+            }
         }
 
         private void BtnInfo_Click(object sender, EventArgs e)
         {
             string mensagem;
 
-            mensagem = "Estado: Informe código IBGE do estado do fornecedor\n\n" +
-                        "Ano: informe ano com 2 digitos\n\n" + "Mês: informe mês com 2 digitos\n\n" +
-                        "CNPJ: Informe o CNPJ\n\n" + "Modelo: Informe o modelo\n\n" + "Série: Informe a série com 3 digitos\n\n" +
-                        "Número: Informe um numero maior do que a última nota do fornecedor no sistema 9 digitos\n\n" +
-                        "Desenvolvido por Bruno Fonseca\n"+ "Bruno.Fonseca@pentare.com.br\n\n";
+            mensagem = "Estado: Selecione ou digite o estado do emitente\n\n" +
+                        "Ano: Informe o ano com 2 ou 4 dígitos (ex: 26 ou 2026)\n\n" +
+                        "Mês: Informe o mês com 1 ou 2 dígitos (ex: 1 ou 01)\n\n" +
+                        "CNPJ: Informe o CNPJ do emitente (14 caracteres, alfanumérico)\n\n" +
+                        "Modelo: Selecione o modelo do documento fiscal\n\n" +
+                        "Série: Informe a série (até 3 dígitos; zeros à esquerda são inseridos automaticamente)\n\n" +
+                        "Número: Informe o número da NF-e (até 9 dígitos; zeros à esquerda são inseridos automaticamente)\n\n" +
+                        "Desenvolvido por Bruno Fonseca\n" + "Bruno.Fonseca@pentare.com.br\n\n";
 
             MessageBox.Show("As informações dos campos são: \n\n" + mensagem,"Informação",MessageBoxButtons.OK,MessageBoxIcon.Information);
         }
@@ -368,13 +428,14 @@ namespace GeradorChaveDeAcesso
         private void btnNovo_Click(object sender, EventArgs e)
         {
             string mensagem;
-            string ver = "3.00";
+            string ver = "4.00";
 
 
-            mensagem = "Validações adicionadas nos campos de 'Série', 'Número', 'CNPJ'.\n" +
-                       "Estados colocados em ordem alfabetica no campo 'Estado'.\n" +
-                       "Ajustes no layout principal.\n" +
-                       "Adição do botão 'NOVO'.";
+            mensagem = "Suporte a CNPJ alfanumérico (A=10, B=11, ..., Z=35).\n" +
+                       "Campos separados para Ano e Mês com autocompletar (ex: '26' → '2026', '1' → '01').\n" +
+                       "Preenchimento automático de zeros à esquerda nos campos Série e Número.\n" +
+                       "Estado com autocompletar ao digitar (ex: 'sc' → 'SC').\n" +
+                       "Modernização do código (ArrayList → List<string>).";
 
             MessageBox.Show("As atualizações disponibilizadas na versão " + ver + "\n\n" + mensagem,"Informações",MessageBoxButtons.OK,MessageBoxIcon.Information);
         }

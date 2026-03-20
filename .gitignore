@@ -1,0 +1,13 @@
+# Build artifacts
+GeradorChaveDeAcesso/bin/
+GeradorChaveDeAcesso/obj/
+
+# Visual Studio local settings
+GeradorChaveDeAcesso/.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Generated installer output
+Instalador/*.exe

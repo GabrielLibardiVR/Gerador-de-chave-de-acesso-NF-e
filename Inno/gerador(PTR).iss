@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gerador de Chave de Acesso"
-#define MyAppVersion "3.0"
+#define MyAppVersion "4.0"
 #define MyAppPublisher "TotalDevs"
 #define MyAppURL "http://www.example.com/"
 #define MyAppExeName "GeradorChaveDeAcesso.exe"
@@ -22,8 +22,9 @@ DefaultDirName=C:\{#MyAppName}
 DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-OutputBaseFilename=Gerador de Chave de Acesso
-SetupIconFile=C:\Users\bruno.fonseca\Desktop\Gerador-de-chave-de-acesso-NF-e\GeradorChaveDeAcesso\Sources\chave.ico
+OutputDir=..\Instalador
+OutputBaseFilename=Gerador de Chave de Acesso 4.0
+SetupIconFile=..\GeradorChaveDeAcesso\Sources\chave.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -36,7 +37,7 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\bruno.fonseca\Desktop\Gerador-de-chave-de-acesso-NF-e\GeradorChaveDeAcesso\bin\Debug\GeradorChaveDeAcesso.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\GeradorChaveDeAcesso\bin\Release\GeradorChaveDeAcesso.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
